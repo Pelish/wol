@@ -92,6 +92,9 @@ public class ChatServer extends TCPServer {
         channels.put("#Lob_21_1", new ChatChannel("#Lob_21_1", null, "progamer", 21, 0, 0, false, 0, CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT));
         // TiberianSun lobbies
         channels.put("#Lob_18_0", new ChatChannel("#Lob_18_0", null, "zotclot9", 18, 0, 0, false, 0, CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT));
+        // Official chat channel
+        channels.put("#Chat", new ChatChannel("#Chat", null, "", 0, 0, 0, false, 0, CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT));
+        
         System.out.println("ChatServer listening on " + address + ":" + port);
     }
 
@@ -434,8 +437,8 @@ public class ChatServer extends TCPServer {
         if (listType == 0) {
             for (Iterator<ChatChannel> i = channels.values().iterator(); i.hasNext();) {
                 ChatChannel channel = i.next();
-                if ((channel.getFlags() & CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT) > 0 && channel.getType() == gameType)  {
-                    putReply(client, RPL_LIST, channel.getName() + " " + channel.getUsers().size() + " 0 " + channel.getFlags());
+                if ((channel.getFlags() & CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT) > 0 && (channel.getType() == gameType || channel.getType() == 0))  {
+                    putReply(client, RPL_LIST, channel.getName() + " " + channel.getUsers().size() + " " + (((channel.getFlags() & CHAN_PERMANENT) > 0) ? 1 : 0) + " " + channel.getFlags());
                 }
             }
         }
@@ -612,30 +615,39 @@ public class ChatServer extends TCPServer {
      * @param params    params
      */
     protected void onJoin(ChatClient client, String[] params) {
+        ChatChannel channel;
 
-        if (params.length < 2) {
+        if (params.length < 1) {
             putReply(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
             return;
         }
 
         if (channels.containsKey(params[0])) {
-            ChatChannel channel = channels.get(params[0]);
-            try {
-                channel.join(client, params.length > 1 ? params[1] : "");
-                putReplyChannel(channel, client, "JOIN", ":0," + client.getLongIp() + " " + channel.getName());
-                putChannelNames(client, channel);
-            } catch(UserExistsException e) {
-                putReply(client, "JOIN", ":0," + client.getLongIp() + " " + channel.getName());
-            } catch(UserBannedException e) {
-                putReply(client, ERR_BANNEDFROMCHAN, channel.getName() + " :Cannot join channel (banned)");
-            } catch(GameFullException e) {
-                putReply(client, ERR_CHANNELISFULL, channel.getName() + " :Cannot join channel (game is full)");
-            } catch(InvalidKeyException e) {
-                putReply(client, ERR_BADCHANNELKEY, channel.getName() + " :Cannot join channel (invalid key)");
-            }
+            channel = channels.get(params[0]);
         } else {
-            putReply(client, ERR_NOSUCHCHANNEL, params[0] + " :No such channel");
+            try {
+                channel = new ChatChannel(params[0], client, params.length > 1 ? params[1] : "", 0, 0, 0, false, 0, CHAN_LOBBY);
+                channels.put(params[0], channel);
+            } catch(Exception e) {
+                //an error when creating channel
+                putReply(client, ERR_NOSUCHCHANNEL, params[0] + " :No such channel");
+                return;
+            }
         }
+
+        try {
+            channel.join(client, params.length > 1 ? params[1] : "");
+            putReplyChannel(channel, client, "JOIN", ":0," + client.getLongIp() + " " + channel.getName());
+            putChannelNames(client, channel);
+        } catch(UserExistsException e) {
+            putReply(client, "JOIN", ":0," + client.getLongIp() + " " + channel.getName());
+        } catch(UserBannedException e) {
+            putReply(client, ERR_BANNEDFROMCHAN, channel.getName() + " :Cannot join channel (banned)");
+        } catch(GameFullException e) {
+            putReply(client, ERR_CHANNELISFULL, channel.getName() + " :Cannot join channel (channel is full)");
+        } catch(InvalidKeyException e) {
+            putReply(client, ERR_BADCHANNELKEY, channel.getName() + " :Cannot join channel (invalid key)");
+        }           
     }
 
     /**
@@ -874,7 +886,7 @@ public class ChatServer extends TCPServer {
         }
     }
 
-        /**
+    /**
      * Called when client sends SQUADINFO command
      * 
      * @param client    source client
