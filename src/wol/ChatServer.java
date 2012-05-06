@@ -92,6 +92,8 @@ public class ChatServer extends TCPServer {
         channels.put("#Lob_21_1", new ChatChannel("#Lob_21_1", null, "progamer", 21, 0, 0, false, 0, CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT));
         // TiberianSun lobbies
         channels.put("#Lob_18_0", new ChatChannel("#Lob_18_0", null, "zotclot9", 18, 0, 0, false, 0, CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT));
+        // Dune2000 lobbies
+        channels.put("#Lob_14_0", new ChatChannel("#Lob_14_0", null, "zot0blat", 14, 0, 0, false, 0, CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT));
         // Official chat channel
         channels.put("#Chat", new ChatChannel("#Chat", null, "", 0, 0, 0, false, 0, CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT));
         
@@ -636,7 +638,18 @@ public class ChatServer extends TCPServer {
                 putReply(client, ERR_NOSUCHCHANNEL, params[0] + " :No such channel");
                 return;
             }
-            //FIXME: Check for unsupported chars here
+            //Pelish: Check for supported chars:
+            for (int i = 1; i < params[0].length(); i++) {
+                char c = params[0].charAt(i);
+                if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+                    //ok
+                }
+                else {
+                    //FIXME: Send real error when can not create chat channel
+                    putReply(client, ERR_NOSUCHCHANNEL, params[0] + " :No such channel");
+                    return;
+                }
+            }
             channel = new ChatChannel(params[0], client, params.length > 1 ? params[1] : "", 0, 0, 0, false, 0, CHAN_LOBBY);
             newchannel = true;
         }
@@ -701,6 +714,12 @@ public class ChatServer extends TCPServer {
 
         if (params.length < 2) {
             putReply(client, ERR_NEEDMOREPARAMS, "PAGE :Not enough parameters");
+            return;
+        }
+
+        if (params[0].equals('0')) {
+            //FIXME: Clans support here - send PAGE to clanmembers
+            putReply(client, RPL_PAGE, "1 :No such nick");
             return;
         }
 
