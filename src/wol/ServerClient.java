@@ -37,9 +37,10 @@ public class ServerClient extends StringTCPClient {
 
         if (message.startsWith("whereto")) {
             putString(":" + WOL.hostname + " 610 UserName 1");
-            putString(":" + WOL.hostname + " 605 UserName :" + WOL.hostname + " 5000 'Live chat server' 0 0.0000 0.0000");
-            putString(":" + WOL.hostname + " 608 UserName :" + WOL.hostname + " 4006 'Gameres server' 0 0.0000 0.0000");
-            putString(":" + WOL.hostname + " 609 UserName :" + WOL.hostname + " 4002 'Ladder server' 0 0.0000 0.0000");
+            putString(":" + WOL.hostname + " 605 UserName :" + WOL.hostname + " 5000 '0,1:Live chat server' -8 10.0 10.0");
+            putString(":" + WOL.hostname + " 608 UserName :" + WOL.hostname + " 4006 'Gameres server' -8 10.0 10.0");
+            putString(":" + WOL.hostname + " 609 UserName :" + WOL.hostname + " 4002 'Ladder server' -8 10.0 10.0");
+            putString(":" + WOL.hostname + " 615 UserName :" + WOL.hostname + " 0 'Ping server' -8 10.0 10.0");
             putString(":" + WOL.hostname + " 607");
             disconnect();
         }

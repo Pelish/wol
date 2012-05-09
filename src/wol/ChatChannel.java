@@ -357,7 +357,7 @@ public class ChatChannel {
         if (maxUsers > 0 && users.size() == maxUsers)
             throw new GameFullException();
         
-        if ((key.isEmpty() == false) && (!joinKey.equals(key)))
+        if ((!key.isEmpty()) && (!joinKey.equals(key)))
             throw new InvalidKeyException();
 
         if (bans.contains(client.getNick()))

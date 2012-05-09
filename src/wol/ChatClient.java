@@ -310,6 +310,10 @@ public class ChatClient extends StringTCPClient {
                 server.onGetLocale(this, params);
             }
 
+            else if (command.equalsIgnoreCase("GETINSIDER")) {
+                server.onGetInsider(this, params);
+            }
+
             else if (command.equalsIgnoreCase("FINDUSEREX")) {
                 server.onFindUserEx(this, params);
             }
@@ -328,6 +332,10 @@ public class ChatClient extends StringTCPClient {
 
             else if (command.equalsIgnoreCase("SQUADINFO")) {
                 server.onSquadInfo(this, params);
+            }
+
+            else if (command.equalsIgnoreCase("CLANBYNAME")) {
+                server.onClanByName(this, params);
             }
 
             else if (command.equalsIgnoreCase("TIME")) {

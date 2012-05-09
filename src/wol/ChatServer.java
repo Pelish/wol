@@ -59,6 +59,7 @@ public class ChatServer extends TCPServer {
         final static public int RPL_PAGE                = 389;
         final static public int RPL_TIME                = 391;
         final static public int RPL_FINDUSEREX          = 398;
+        final static public int RPL_INSIDER             = 399;
         final static public int ERR_NOSUCHNICK          = 401;
         final static public int ERR_NOSUCHCHANNEL       = 403;
         final static public int ERR_NONICKNAMEGIVEN     = 431;
@@ -95,6 +96,8 @@ public class ChatServer extends TCPServer {
         channels.put("#Lob_18_0", new ChatChannel("#Lob_18_0", null, "zotclot9", 18, 0, 0, false, 0, CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT));
         // Dune2000 lobbies
         channels.put("#Lob_14_0", new ChatChannel("#Lob_14_0", null, "zot0blat", 14, 0, 0, false, 0, CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT));
+        // Renegade lobbies
+        channels.put("#Lob_12_0", new ChatChannel("#Lob_12_0", null, "zotclot9", 12, 0, 0, false, 0, CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT));
         // Official chat channel
         channels.put("#Chat", new ChatChannel("#Chat", null, "", 0, 0, 0, false, 0, CHAN_LOBBY|CHAN_OFFICIAL|CHAN_PERMANENT));
         
@@ -425,6 +428,35 @@ public class ChatServer extends TCPServer {
              //FIXME: unknown locale error reply?
             System.out.println("Unexpected exception when SetLocale");
         }
+    }
+
+    /**
+     * Called when client sends GETINSIDER command
+     * 
+     * @param client    source client
+     * @param params    params
+     */
+     protected void onGetInsider(ChatClient client, String[] params) {
+        String temp = "";
+        int insider;
+
+        if (params.length < 1) {
+            putReply(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
+            return;
+        }
+        
+        for (int i = 0; i < params.length; i++) {
+            if (clients.containsKey(params[i]))
+                insider = 1;
+            else
+                insider = 0;
+
+            temp = temp + params[i] + "`" + insider;
+
+            if (i < params.length-1)
+                temp = temp + "`";
+        }
+        putReply(client, RPL_INSIDER, temp);
     }
 
     /**
@@ -928,6 +960,23 @@ public class ChatServer extends TCPServer {
         }
 
         //FIXME: In params[0] is ID of squad, if is 0 it wants info for client
+        putReply(client, ERR_SQUADIDNOEXIST, ":ID does not exist");
+    }
+
+    /**
+     * Called when client sends CLANBYNAME command
+     * 
+     * @param client    source client
+     * @param params    params
+     */
+     protected void onClanByName(ChatClient client, String[] params) {
+
+        if (params.length < 1) {
+            putReply(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
+            return;
+        }
+
+        //FIXME: Clan support here - In params[0] is nickname for which clan message is wanted
         putReply(client, ERR_SQUADIDNOEXIST, ":ID does not exist");
     }
 
