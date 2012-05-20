@@ -50,6 +50,9 @@ public class ChatServer extends TCPServer {
         final static public int RPL_CODEPAGESET         = 329;
         final static public int RPL_ENDOFLIST           = 323;
         final static public int RPL_TOPIC               = 332;
+        final static public int RPL_GETBUDDY            = 333;
+        final static public int RPL_ADDBUDDY            = 334;
+        final static public int RPL_DELBUDDY            = 335;
         final static public int RPL_NAMREPLY            = 353;
         final static public int RPL_SQUADINFO           = 358;
         final static public int RPL_ENDOFNAMES          = 366;
@@ -989,6 +992,51 @@ public class ChatServer extends TCPServer {
      protected void onTime(ChatClient client, String[] params) {
 
         putReply(client, RPL_TIME, WOL.hostname + " :" + (int)(System.currentTimeMillis() / 1000));
+    }
+
+    /**
+     * Called when client sends GETBUDDY command
+     * 
+     * @param client    source client
+     * @param params    params
+     */
+     protected void onGetBuddy(ChatClient client, String[] params) {
+        //FIXME: Send buddy list here
+        putReply(client, RPL_GETBUDDY, "");
+    }
+
+    /**
+     * Called when client sends ADDBUDDY command
+     * 
+     * @param client    source client
+     * @param params    params
+     */
+     protected void onAddBuddy(ChatClient client, String[] params) {
+
+        if (params.length < 1) {
+            putReply(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
+            return;
+        }
+
+        //FIXME: Add buddy to list, send an error message when buddy didn't be added
+        putReply(client, RPL_ADDBUDDY, params[0]);
+    }
+
+    /**
+     * Called when client sends DELBUDDY command
+     * 
+     * @param client    source client
+     * @param params    params
+     */
+     protected void onDelBuddy(ChatClient client, String[] params) {
+
+        if (params.length < 1) {
+            putReply(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
+            return;
+        }
+
+        //FIXME: Delete buddy from list, send an error message when buddy didn't be deleted
+        putReply(client, RPL_DELBUDDY, params[0]);
     }
 
     /**

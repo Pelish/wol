@@ -342,6 +342,18 @@ public class ChatClient extends StringTCPClient {
                 server.onTime(this, params);
             }
 
+            else if (command.equalsIgnoreCase("GETBUDDY")) {
+                server.onGetBuddy(this, params);
+            }
+
+            else if (command.equalsIgnoreCase("ADDBUDDY")) {
+                server.onAddBuddy(this, params);
+            }
+
+            else if (command.equalsIgnoreCase("DELBUDDY")) {
+                server.onDelBuddy(this, params);
+            }
+
             else if (command.equalsIgnoreCase("PART")) {
                 server.onPart(this, params);
             }
